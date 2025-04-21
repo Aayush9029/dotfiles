@@ -42,6 +42,8 @@ export BUN_INSTALL="$HOME/.bun"
 export PATH="$BUN_INSTALL/bin:$PATH"
 export PATH=/opt/homebrew/bin:$PATH
 export PATH="~/Documents/bin:$PATH"
+export PATH="$(npm config get prefix)/bin:$PATH"
+. "$HOME/.local/bin/env"
 
 # API Keys
 # ...
@@ -49,7 +51,7 @@ export PATH="~/Documents/bin:$PATH"
 # Bun Completions
 [ -s "~/.bun/_bun" ] && source "~/.bun/_bun"
 
-# Functions
+# Custom Functions
 
 function context_gen {
     find . -name "*.$1" -type f -exec printf '\n=== %s ===\n' {} \; -exec cat {} \;
@@ -63,7 +65,3 @@ setopt HIST_IGNORE_ALL_DUPS
 setopt HIST_FIND_NO_DUPS
 setopt HIST_IGNORE_SPACE
 setopt HIST_SAVE_NO_DUPS
-
-export PATH="$(npm config get prefix)/bin:$PATH"
-
-. "$HOME/.local/bin/env"
