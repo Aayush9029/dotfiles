@@ -52,8 +52,6 @@ mas "Helm", id: 6479357934
 mas "Katari", id: 6743736987
 mas "Klack", id: 6446206067
 mas "Little Snitch Mini", id: 1629008763
-mas "NepTunes", id: 1006739057
-mas "Pieoneer", id: 6739781207
 mas "TestFlight", id: 899247664
 vscode "bradlc.vscode-tailwindcss"
 vscode "devine-davies.make-hidden"
