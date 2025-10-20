@@ -41,7 +41,6 @@ alias ccc="claude --dangerously-skip-permissions"
 alias cco="claude --dangerously-skip-permissions --model=opus"
 alias generate-today="ccc -p \"/generate-today is running… everything i have done today Aayush9029, for everything pr merges, branches worked on and
 comits\""
-alias eden="ANTHROPIC_BASE_URL=https://gateway.ai.cloudflare.com/v1/05a2937b984748e012e3c243708167b3/claude-max/anthropic claude --dangerously-skip-permissions"
 alias lg="lazygit"
 alias ":wq"="exit"
 alias "??"="ghcs"
