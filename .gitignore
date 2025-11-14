@@ -1,0 +1,10 @@
+# Ignore API keys file
+../api-keys.zsh
+
+# macOS
+.DS_Store
+
+# Editor
+*.swp
+*.swo
+*~
