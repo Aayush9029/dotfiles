@@ -14,8 +14,8 @@ alias lg="lazygit"
 # Shell shortcuts
 alias ":wq"="exit"
 
-# GitHub Copilot
-alias "??"="ghcs"
+# Quick Claude Haiku prompt
+alias '??'='ask_claude'
 
 # Homebrew maintenance
 alias bubu="brew update; brew upgrade; brew cleanup; brew doctor; brew upgrade --cask; mas upgrade"

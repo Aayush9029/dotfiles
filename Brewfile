@@ -3,6 +3,7 @@ tap "cirruslabs/cli"
 tap "facebook/fb"
 tap "finnvoor/tools"
 tap "getsentry/tools"
+tap "homebrew/cask"
 tap "mattt/tap"
 tap "opencode-ai/tap"
 tap "supabase/tap"
@@ -64,6 +65,8 @@ brew "gobuster"
 brew "gping"
 # Tools and libraries to manipulate images in many formats
 brew "imagemagick"
+# CLI tool for searching and downloading app packages from the iOS App Store
+brew "ipatool"
 # Utility to optimize JPEG files
 brew "jpegoptim"
 # Simple terminal UI for git commands
@@ -243,11 +246,10 @@ mas "Klack", id: 6446206067
 mas "Little Snitch Mini", id: 1629008763
 mas "Mockview", id: 1592728145
 mas "NepTunes", id: 1006739057
-mas "NSWindow Designer", id: 1497499563
 mas "Numbers", id: 409203825
 mas "Parcel 2", id: 375589283
-mas "Pieoneer", id: 6739781207
 mas "PolyCapture", id: 6504193234
+mas "Shapr3D", id: 1091675654
 mas "TestFlight", id: 899247664
 mas "TranslateKit", id: 6476773066
 mas "WhatsApp", id: 310633997
