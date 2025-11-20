@@ -9,3 +9,8 @@ google() {
 function context_gen {
     find . -name "*.$1" -type f -exec printf '\n=== %s ===\n' {} \; -exec cat {} \;
 }
+
+# Wrap xcodebuild to automatically pipe through xcbeautify
+function xcodebuild {
+    command xcodebuild "$@" 2>&1 | xcbeautify
+}
