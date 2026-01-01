@@ -18,7 +18,10 @@ alias ":wq"="exit"
 alias '??'='ask_claude'
 
 # Homebrew maintenance
-alias bubu="brew update; brew upgrade; brew cleanup; brew doctor; brew upgrade --cask; mas upgrade"
+alias bubu="brew update; brew upgrade; brew cleanup; brew doctor; brew upgrade --cask"
 
 # ImageMagick
 alias convert="magick convert"
+
+# Xcode project version management
+alias xcode-version-bump="xcode_version_bump"
