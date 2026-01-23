@@ -25,19 +25,36 @@ function swift-package-update {
             return 1
         fi
     else
-        # Search common locations
-        local search_paths=(
-            "./Package.swift"
-            "./*/Package.swift"
-        )
+        # Find all Package.swift files in non-hidden directories
+        local -a found_packages
+        found_packages=("${(@f)$(find . -name "Package.swift" -not -path "*/.*" -not -path "*/Build/*" -not -path "*/build/*" -not -path "*/DerivedData/*" -not -path "*/Pods/*" 2>/dev/null | sort)}")
 
-        for path in $search_paths; do
-            local found=(${~path}(N))
-            if [[ ${#found[@]} -gt 0 ]]; then
-                PACKAGE_SWIFT="${found[1]}"
-                break
+        # Remove empty entries
+        found_packages=(${found_packages:#})
+
+        if [[ ${#found_packages[@]} -eq 0 ]]; then
+            PACKAGE_SWIFT=""
+        elif [[ ${#found_packages[@]} -eq 1 ]]; then
+            PACKAGE_SWIFT="${found_packages[1]}"
+        else
+            # Multiple found - show selection menu
+            echo ""
+            echo -e "${CYAN}${BOLD}Multiple Package.swift files found:${NC}"
+            echo ""
+            for i in {1..${#found_packages[@]}}; do
+                echo -e "  ${YELLOW}${BOLD}$i)${NC} ${BLUE}${found_packages[$i]}${NC}"
+            done
+            echo ""
+            echo -ne "${CYAN}Select [1-${#found_packages[@]}]:${NC} "
+            read pkg_selection
+
+            if [[ "$pkg_selection" =~ ^[0-9]+$ && "$pkg_selection" -ge 1 && "$pkg_selection" -le ${#found_packages[@]} ]]; then
+                PACKAGE_SWIFT="${found_packages[$pkg_selection]}"
+            else
+                echo -e "${RED}Invalid selection${NC}"
+                return 1
             fi
-        done
+        fi
     fi
 
     if [[ -z "$PACKAGE_SWIFT" || ! -f "$PACKAGE_SWIFT" ]]; then

@@ -11,6 +11,8 @@ set ZSH_AUTOSUGGEST_USE_ASYNC=true
 source ~/.config/zsh/plugins/fast-syntax-highlighting/fast-syntax-highlighting.plugin.zsh
 
 # Key Bindings
+bindkey -e  # Standard terminal keybindings (Ctrl+A, Ctrl+E, etc.)
+
 bindkey '^[[Z' reverse-menu-complete
 bindkey '^[[A' up-line-or-search
 bindkey '^[[B' down-line-or-search
@@ -18,6 +20,12 @@ bindkey "^P" up-line-or-search
 bindkey "^N" down-line-or-search
 # Disable Ctrl+R for history search
 bindkey -r '^R'
+
+# Word navigation (Option+Left/Right)
+bindkey '^[[1;3D' backward-word
+bindkey '^[[1;3C' forward-word
+bindkey '^[b' backward-word
+bindkey '^[f' forward-word
 
 # Completion
 autoload -Uz compinit && compinit

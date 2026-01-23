@@ -25,3 +25,6 @@ alias convert="magick convert"
 
 # Xcode project version management
 alias xcode-version-bump="xcode_version_bump"
+
+# Tmuxinator shortcuts
+alias start-calai="tmuxinator start calai"

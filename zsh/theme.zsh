@@ -1,25 +1,16 @@
 # Prompt and Theme Configuration
 
-# Auto-start tmux if not already in tmux
-if [[ -z "$TMUX" ]] && command -v tmux &> /dev/null; then
-  # Check if any tmux sessions exist
-  if tmux ls 2>/dev/null; then
-    # Attach to existing session
-    exec tmux attach
-  else
-    # Create new session
-    exec tmux new-session
-  fi
-fi
-
-# Detect if we're in an SSH session
+# Detect if we're in an SSH session and set theme accordingly
 if [[ -n "$SSH_CLIENT" ]] || [[ -n "$SSH_TTY" ]] || [[ -n "$SSH_CONNECTION" ]]; then
-  # SSH session detected - use simple theme without special fonts
-  ZSH_THEME="bira"
+  # SSH session detected - use robbyrussell-style prompt
+  autoload -Uz vcs_info
+  precmd() { vcs_info }
 
-  # Load Oh My Zsh with the simple theme
-  export ZSH="$HOME/.oh-my-zsh"
-  source $ZSH/oh-my-zsh.sh
+  zstyle ':vcs_info:git:*' formats '%F{cyan}(%b)%f '
+  zstyle ':vcs_info:*' enable git
+
+  setopt PROMPT_SUBST
+  PROMPT='%F{green}➜%f  %F{cyan}%1~%f ${vcs_info_msg_0_}'
 else
   # Local session - use Powerlevel10k
   # Powerlevel10k instant prompt
