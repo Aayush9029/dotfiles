@@ -4,17 +4,17 @@
 alias cdot="cursor ."
 
 # Claude CLI shortcuts
-alias ccc="claude --dangerously-skip-permissions"
+alias ccc="claude --dangerously-skip-permissions --model=haiku"
 alias cco="claude --dangerously-skip-permissions --model=opus"
-alias generate-today="cco -p \"/generate-today is running… everything i have done today Aayush9029, for everything pr merges, branches worked on and comits\""
 
 # Git shortcuts
 alias lg="lazygit"
 
 # Shell shortcuts
 alias ":wq"="exit"
+alias echo="echo -n"
 
-# Quick Claude Haiku prompt
+# Quick Claude Haiku prompt (Python script handles quoting)
 alias '??'='ask_claude'
 
 # Homebrew maintenance

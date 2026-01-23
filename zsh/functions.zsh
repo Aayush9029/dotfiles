@@ -1,10 +1,5 @@
 # Custom Functions
 
-# Quick Claude Haiku prompt helper
-function ask_claude {
-  claude --model=haiku -p "$*"
-}
-
 # Google search with Gemini
 google() {
   gemini -p "Search google for <query>$*</query> and summarize results"

@@ -10,6 +10,7 @@ export PATH="$BUN_INSTALL/bin:$PATH"
 
 # Custom bin directory
 export PATH="$HOME/Documents/bin:$PATH"
+export PATH="$HOME/.oh-my-zsh/custom/dotfiles/bin:$PATH"
 
 # npm global packages
 export PATH="$(npm config get prefix)/bin:$PATH"
