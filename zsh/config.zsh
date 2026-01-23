@@ -4,8 +4,9 @@
 plugins=(sudo git history taskwarrior tmux tmuxinator zsh-autosuggestions)
 
 # Load zsh-autosuggestions
+ZSH_AUTOSUGGEST_STRATEGY=(history completion)
+ZSH_AUTOSUGGEST_USE_ASYNC=true
 source ~/.config/zsh/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh
-set ZSH_AUTOSUGGEST_USE_ASYNC=true
 
 # Load fast-syntax-highlighting
 source ~/.config/zsh/plugins/fast-syntax-highlighting/fast-syntax-highlighting.plugin.zsh
@@ -39,6 +40,9 @@ zstyle ':completion:*:kill:*' command 'ps -u $USER -o pid,%cpu,tty,cputime,cmd'
 zstyle ':completion::complete:*' use-cache true
 
 # History Settings
+HISTFILE=~/.zsh_history
+HISTSIZE=50000
+SAVEHIST=50000
 setopt EXTENDED_HISTORY
 setopt HIST_EXPIRE_DUPS_FIRST
 setopt HIST_IGNORE_DUPS
@@ -46,6 +50,8 @@ setopt HIST_IGNORE_ALL_DUPS
 setopt HIST_FIND_NO_DUPS
 setopt HIST_IGNORE_SPACE
 setopt HIST_SAVE_NO_DUPS
+setopt SHARE_HISTORY
+setopt INC_APPEND_HISTORY
 
 # Bun Completions
 [ -s "~/.bun/_bun" ] && source "~/.bun/_bun"
