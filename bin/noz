@@ -1,0 +1,192 @@
+#!/bin/bash
+#***************************************************************************
+#*** noz - prevent laptop from sleeping when lid is closed
+#***************************************************************************
+
+#***** set defaults *****
+DEFAULT_TIMEOUT=45 # in minutes
+
+#***** show help *****
+function show_help() {
+    cat << EOF
+Usage: noz [OPTIONS]
+
+Prevents your Mac from sleeping when the lid is closed for a specified duration.
+
+Options:
+  -h, --help           Show this help message
+  -m, --minutes MIN    How long to prevent sleep (default: $DEFAULT_TIMEOUT minutes)
+
+Examples:
+  noz                  # Prevent sleep for 45 minutes (default)
+  noz -m 60            # Prevent sleep for 60 minutes (1 hour)
+  noz --minutes 5      # Prevent sleep for 5 minutes
+
+The script will:
+- Disable sleep completely (even with lid closed)
+- Wait for the timeout OR until you press Enter
+- Automatically re-enable sleep when done
+- If timeout is reached, put the Mac to sleep immediately
+
+Press Ctrl-C or Enter at any time to cancel and restore normal sleep behavior.
+EOF
+    exit 0
+}
+
+#***** parse arguments *****
+timeout_minutes=$DEFAULT_TIMEOUT
+
+# Parse command line arguments
+while [[ $# -gt 0 ]]; do
+    case $1 in
+        -h|--help)
+            show_help
+            ;;
+        -m|--minutes)
+            if [[ -z "$2" ]] || ! [[ "$2" =~ ^[0-9]+$ ]]; then
+                echo "Error: --minutes requires a positive integer argument"
+                exit 1
+            fi
+            timeout_minutes="$2"
+            shift 2
+            ;;
+        *)
+            echo "Error: Unknown option: $1"
+            echo "Use 'noz --help' for usage information"
+            exit 1
+            ;;
+    esac
+done
+
+timeout_seconds=$((timeout_minutes * 60))
+
+#***** ask for sudo upfront *****
+echo "This script needs administrator privileges to modify power settings."
+sudo -v
+if [[ $? -ne 0 ]]; then
+    echo "Error: sudo authentication failed"
+    exit 1
+fi
+
+#***** get current sleep settings AFTER sudo is authenticated *****
+echo "Getting current power settings..."
+
+# Get battery sleep setting (more robust parsing)
+BATTERY_SLEEP=$(pmset -g custom | awk '/^Battery Power:/,/^AC Power:/ { if ($1 == "sleep") print $2 }')
+if [[ -z "$BATTERY_SLEEP" ]] || ! [[ "$BATTERY_SLEEP" =~ ^[0-9]+$ ]]; then
+    BATTERY_SLEEP=5  # fallback default
+fi
+
+# Get AC sleep setting separately
+AC_SLEEP=$(pmset -g custom | awk '/^AC Power:/,0 { if ($1 == "sleep") print $2 }')
+if [[ -z "$AC_SLEEP" ]] || ! [[ "$AC_SLEEP" =~ ^[0-9]+$ ]]; then
+    AC_SLEEP=10  # fallback default (AC typically has longer sleep)
+fi
+
+echo "  Battery sleep: ${BATTERY_SLEEP} min | AC sleep: ${AC_SLEEP} min"
+
+# Keep sudo alive during script execution
+while true; do sudo -n true; sleep 50; kill -0 "$$" || exit; done 2>/dev/null &
+SUDO_PID=$!
+
+# Track caffeinate PID
+CAFFEINATE_PID=""
+
+function verify_settings() {
+    # Verify disablesleep is actually set
+    local disabled=$(pmset -g | grep -i "SleepDisabled" | awk '{print $2}')
+    if [[ "$disabled" == "1" ]]; then
+        return 0
+    fi
+    return 1
+}
+
+function prevent_sleep() {
+    echo
+    echo "Disabling sleep for $timeout_minutes minutes..."
+    echo "Your Mac will stay awake even with the lid closed."
+    echo
+
+    # Method 1: Use pmset to disable sleep system-wide (works for lid closed)
+    # -a applies to ALL power sources (battery + AC)
+    sudo pmset -a sleep 0
+    sudo pmset -a disablesleep 1
+
+    # Verify settings took effect
+    sleep 0.5
+    if ! verify_settings; then
+        echo "Warning: Primary method may not have taken effect, applying fallback..."
+        # Try individual power source settings as fallback
+        sudo pmset -b sleep 0 disablesleep 1 2>/dev/null
+        sudo pmset -c sleep 0 disablesleep 1 2>/dev/null
+    fi
+
+    # Method 2: Also run caffeinate as a belt-and-suspenders approach
+    # -d: prevent display sleep, -i: prevent idle sleep, -s: prevent system sleep (AC)
+    # -w: wait for process - we use our own PID so it dies when we die
+    caffeinate -d -i -s -w $$ &
+    CAFFEINATE_PID=$!
+
+    # Final verification
+    if verify_settings; then
+        echo "Sleep disabled successfully."
+    else
+        echo "Warning: Could not verify sleep is disabled. Continuing anyway..."
+    fi
+
+    echo
+    echo -n "Press <Enter> to re-enable sleep early, or wait for timeout..."
+}
+
+function enable_sleep() {
+    # $1: <enter> = 0, timeout = 1, Ctrl-C = undef
+
+    #----- kill background processes -----
+    kill $SUDO_PID 2>/dev/null
+    [[ -n "$CAFFEINATE_PID" ]] && kill $CAFFEINATE_PID 2>/dev/null
+
+    #----- insert a newline for timeout or Ctrl-C -----
+    if [[ ${1:-1} -ne 0 ]]; then
+        echo
+    fi
+
+    echo "Re-enabling normal sleep behavior..."
+    echo "Restoring: Battery=${BATTERY_SLEEP}min, AC=${AC_SLEEP}min"
+
+    # Re-enable sleep system-wide first
+    sudo pmset -a disablesleep 0
+
+    # Then set individual power source sleep times
+    sudo pmset -b sleep $BATTERY_SLEEP
+    sudo pmset -c sleep $AC_SLEEP
+
+    # Verify restoration
+    sleep 0.5
+    if verify_settings; then
+        echo "Warning: Sleep still appears disabled, forcing..."
+        sudo pmset -a disablesleep 0
+    else
+        echo "Sleep behavior restored."
+    fi
+
+    #----- sleep immediately on timeout only -----
+    if [[ ${1:--1} -eq 1 ]]; then
+        echo "Timeout reached - putting Mac to sleep now..."
+        sudo pmset sleepnow
+    fi
+
+    exit
+}
+
+#***** prevent sleep *****
+prevent_sleep
+
+#***** trap signals to ensure we restore settings *****
+trap enable_sleep INT TERM
+
+#***** wait for enter or timeout *****
+read -t $timeout_seconds
+rc=$?
+
+#***** re-enable normal sleep *****
+enable_sleep $rc
