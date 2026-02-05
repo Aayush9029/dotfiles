@@ -15,6 +15,42 @@ function xcodebuild {
     command xcodebuild "$@" 2>&1 | xcbeautify
 }
 
+# Start compose dev environment in tmux
+# Usage: start-compose-code         (opens 3 panes with ls)
+#        start-compose-code -claude  (opens 3 panes with cco)
+start-compose-code() {
+    local session="compose"
+    local root="$HOME/Developer/LDT/compose"
+    local cmd="ls"
+    [[ "$1" == "-claude" ]] && cmd="cco"
+
+    # Kill existing session if any
+    tmux kill-session -t "$session" 2>/dev/null
+
+    # Create session with macos pane (top-left)
+    tmux new-session -d -s "$session" -c "$root/compose-macos"
+    tmux send-keys -t "$session" "$cmd" C-m
+
+    # Split top pane vertically for landing (top-right)
+    tmux split-window -h -t "$session" -c "$root/compose-landing"
+    tmux send-keys -t "$session" "$cmd" C-m
+
+    # Split full width horizontally for server (bottom)
+    tmux select-pane -t "$session:0.0"
+    tmux split-window -v -f -t "$session" -c "$root/compose-server"
+    tmux send-keys -t "$session" "$cmd" C-m
+
+    # Select macos pane
+    tmux select-pane -t "$session:0.0"
+
+    # Attach
+    if [ -z "$TMUX" ]; then
+        tmux attach-session -t "$session"
+    else
+        tmux switch-client -t "$session"
+    fi
+}
+
 # Convert video files to optimized GIFs using ffmpeg and gifsicle
 gifify() {
     # Defaults

@@ -11,6 +11,9 @@ source ~/.config/zsh/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh
 # Load fast-syntax-highlighting
 source ~/.config/zsh/plugins/fast-syntax-highlighting/fast-syntax-highlighting.plugin.zsh
 
+# Disable Ctrl+\ SIGQUIT (used as tmux prefix)
+[[ -t 0 ]] && stty quit undef
+
 # Key Bindings
 bindkey -e  # Standard terminal keybindings (Ctrl+A, Ctrl+E, etc.)
 
